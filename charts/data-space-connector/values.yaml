@@ -22,11 +22,50 @@ managedPostgres:
         database: tildb
         owner: postgres
         postInitSQL:
-          - CREATE DATABASE ccsdb OWNER postgres;
-          - CREATE DATABASE papdb OWNER postgres;
-          - CREATE DATABASE keycloakdb OWNER postgres;
-          - CREATE DATABASE ih OWNER postgres;
-          - CREATE DATABASE issuer OWNER postgres;
+          - CREATE ROLE til LOGIN CREATEDB;
+          - CREATE ROLE ccs LOGIN CREATEDB;
+          - CREATE ROLE pap LOGIN CREATEDB;
+          - CREATE ROLE keycloak LOGIN CREATEDB;
+          - CREATE ROLE ih LOGIN CREATEDB;
+          - CREATE ROLE issuer LOGIN CREATEDB;
+          - ALTER DATABASE tildb OWNER TO til;
+          - CREATE DATABASE ccsdb OWNER ccs;
+          - CREATE DATABASE papdb OWNER pap;
+          - CREATE DATABASE keycloakdb OWNER keycloak;
+          - CREATE DATABASE ih OWNER ih;
+          - CREATE DATABASE issuer OWNER issuer;
+    managed:
+      roles:
+        - name: til
+          login: true
+          createdb: true
+          passwordSecret:
+            name: til-postgres-credentials
+        - name: ccs
+          login: true
+          createdb: true
+          passwordSecret:
+            name: ccs-postgres-credentials
+        - name: pap
+          login: true
+          createdb: true
+          passwordSecret:
+            name: pap-postgres-credentials
+        - name: keycloak
+          login: true
+          createdb: true
+          passwordSecret:
+            name: keycloak-postgres-credentials
+        - name: ih
+          login: true
+          createdb: true
+          passwordSecret:
+            name: ih-postgres-credentials
+        - name: issuer
+          login: true
+          createdb: true
+          passwordSecret:
+            name: issuer-postgres-credentials
 
 decentralizedIam:
   enabled: true
@@ -51,11 +90,11 @@ decentralizedIam:
         # -- name of the db dialect
         dialect: POSTGRES
         # -- name of the db user
-        username: postgres
+        username: til
         # -- configuration for the existing secret to get the passwords from
         existingSecret:
           enabled: true
-          name: postgres-superuser
+          name: til-postgres-credentials
           key: password
         # -- host of the database
         host: postgres-rw
@@ -88,11 +127,11 @@ decentralizedIam:
         # -- name of the db dialect
         dialect: POSTGRES
         # -- name of the db user
-        username: postgres
+        username: ccs
         # -- configuration for the existing secret to get the passwords from
         existingSecret:
           enabled: true
-          name: postgres-superuser
+          name: ccs-postgres-credentials
           key: password
         # -- host of the database
         host: postgres-rw
@@ -132,11 +171,11 @@ decentralizedIam:
         # -- url to connect the db at
         url: jdbc:postgresql://postgres-rw:5432/papdb
         # -- username to access the db
-        username: postgres
+        username: pap
         # -- secret to take the password from
         existingSecret:
           enabled: true
-          name: postgres-superuser
+          name: pap-postgres-credentials
           key: password
 
     # -- configuration for the open-policy-agent to be deployed as part of the connector fulfilling the role of the PDP, as a sidecar to apisix
@@ -305,8 +344,8 @@ keycloak:
   externalDatabase:
     host: postgres-rw
     database: keycloakdb
-    user: postgres
-    existingSecret: postgres-superuser
+    user: keycloak
+    existingSecret: keycloak-postgres-credentials
     existingSecretPasswordKey: password
 
   # -- extra volumes to be mounted
@@ -2152,9 +2191,9 @@ identityhub:
     port: "5432"
     database: "ih"
     auth:
-      username: postgres
+      username: ih
       password:
-      existingSecret: postgres-superuser
+      existingSecret: ih-postgres-credentials
       existingSecretPasswordKey: password
 
 vault:

@@ -18,6 +18,16 @@ managedPostgres:
       initdb:
         database: tildb
         owner: postgres
+        postInitSQL:
+          - CREATE ROLE til LOGIN CREATEDB;
+          - ALTER DATABASE tildb OWNER TO til;
+    managed:
+      roles:
+        - name: til
+          login: true
+          createdb: true
+          passwordSecret:
+            name: til-postgres-credentials
 
 # -- configuration for the trusted-issuers-list to be deployed as part of the trust-anchor, see https://github.com/FIWARE/helm-charts/tree/main/charts/trusted-issuers-list for all options
 trusted-issuers-list:
@@ -32,11 +42,11 @@ trusted-issuers-list:
     # -- name of the db dialect
     dialect: POSTGRES
     # -- name of the db user
-    username: postgres
+    username: til
     # -- configuration for the existing secret to get the passwords from
     existingSecret:
       enabled: true
-      name: postgres-superuser
+      name: til-postgres-credentials
       key: password
     # -- host of the database
     host: postgres-rw
