@@ -67,3 +67,8 @@ dependencies:
     condition: cert-manager.enabled
     version: 1.20.0
     repository: https://charts.jetstack.io
+  - name: cloudnative-pg
+    alias: cnpg
+    condition: cnpg.enabled
+    version: 0.23.2
+    repository: https://cloudnative-pg.github.io/charts

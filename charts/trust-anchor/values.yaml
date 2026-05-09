@@ -1,35 +1,23 @@
-## Installation of the postgres-operator - see https://github.com/zalando/postgres-operator
-postgres-operator:
-  # -- should the postgres-operator be installed
+## Installation of the CloudNativePG operator - see https://cloudnative-pg.io/documentation/
+cnpg:
+  # -- should the CloudNativePG operator be installed
   enabled: true
-  configKubernetes:
-    enable_readiness_probe: true
 
-## Usage of the postgres-operator - see https://github.com/zalando/postgres-operator
+## Usage of the CloudNativePG operator - see https://cloudnative-pg.io/documentation/
 managedPostgres:
-  # -- should it be enabled? Requires the postgres-operator CRDs to be installed before applying the chart
+  # -- should it be enabled? Requires the CloudNativePG CRDs to be installed before applying the chart
   enabled: true
-  # -- config as defined in https://github.com/zalando/postgres-operator/blob/master/charts/postgres-operator/crds/postgresqls.yaml
+  # -- config as defined in https://cloudnative-pg.io/documentation/current/cloudnative-pg.v1/
   config:
-    teamId: "trust-anchor"
-    numberOfInstances: 1
-    postgresql:
-      version: "16"
-    volume:
+    instances: 1
+    imageName: ghcr.io/cloudnative-pg/postgresql:16.9
+    storage:
       size: 1Gi
-    users:
-      admin: # maintainer
-        - superuser
-        - createdb
-      til:
-        - createdb
-    databases:
-      tildb: til
-    patroni:
-      pg_hba: # Allow connections without ssl as db is not exposed
-        - local   all all           trust
-        - hostssl all all 0.0.0.0/0 md5
-        - host    all all 0.0.0.0/0 md5
+    enableSuperuserAccess: true
+    bootstrap:
+      initdb:
+        database: tildb
+        owner: postgres
 
 # -- configuration for the trusted-issuers-list to be deployed as part of the trust-anchor, see https://github.com/FIWARE/helm-charts/tree/main/charts/trusted-issuers-list for all options
 trusted-issuers-list:
@@ -44,14 +32,14 @@ trusted-issuers-list:
     # -- name of the db dialect
     dialect: POSTGRES
     # -- name of the db user
-    username: til
+    username: postgres
     # -- configuration for the existing secret to get the passwords from
     existingSecret:
       enabled: true
-      name: til.postgres.credentials.postgresql.acid.zalan.do
+      name: postgres-superuser
       key: password
     # -- host of the database
-    host: postgres
+    host: postgres-rw
     # -- host of the database
     port: 5432
     # -- name of the schema inside the db

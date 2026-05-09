@@ -6,46 +6,37 @@ issuance:
     #-- name of the secret to put the generated password into
     secretName: issuance-secret
 
+cnpg:
+  enabled: true
+
+managedPostgres:
+  enabled: true
+  config:
+    instances: 1
+    imageName: ghcr.io/cloudnative-pg/postgresql:16.9
+    storage:
+      size: 1Gi
+    enableSuperuserAccess: true
+    bootstrap:
+      initdb:
+        database: tildb
+        owner: postgres
+        postInitSQL:
+          - CREATE DATABASE ccsdb OWNER postgres;
+          - CREATE DATABASE papdb OWNER postgres;
+          - CREATE DATABASE keycloakdb OWNER postgres;
+          - CREATE DATABASE ih OWNER postgres;
+          - CREATE DATABASE issuer OWNER postgres;
+
 decentralizedIam:
   enabled: true
 
   # -- configuration for the vc-authentication to be deployed as part of the connector, see https://github.com/FIWARE/vc-authentication/tree/master
   vcAuthentication:
-    ## Usage of the postgres-operator - see https://github.com/zalando/postgres-operator
+    ## Usage of the CloudNativePG operator is handled by this umbrella chart.
     managedPostgres:
-      # -- should it be enabled? Requires the postgres-operator CRDs to be installed before applying the chart
-      enabled: true
-      # -- config as defined in https://github.com/zalando/postgres-operator/blob/master/charts/postgres-operator/crds/postgresqls.yaml
-      config:
-        teamId: "dsc"
-        numberOfInstances: 1
-        postgresql:
-          version: "16"
-        volume:
-          size: 1Gi
-        users:
-          admin: # maintainer
-            - superuser
-            - createdb
-          til:
-            - createdb
-          ccs:
-            - createdb
-          pap:
-            - createdb
-          keycloak:
-            - createdb
-          ih:
-            - createdb
-          issuer:
-            - createdb
-        databases:
-          tildb: til
-          ccsdb: ccs
-          papdb: pap
-          keycloakdb: keycloak
-          ih: ih
-          issuer: issuer
+      # -- disable Zalando operator managed Postgres in subchart
+      enabled: false
 
     # -- configuration for the trusted-issuers-list to be deployed as part of the connector, see https://github.com/FIWARE/helm-charts/tree/main/charts/trusted-issuers-list for all options
     trusted-issuers-list:
@@ -64,10 +55,10 @@ decentralizedIam:
         # -- configuration for the existing secret to get the passwords from
         existingSecret:
           enabled: true
-          name: postgres.postgres.credentials.postgresql.acid.zalan.do
+          name: postgres-superuser
           key: password
         # -- host of the database
-        host: postgres
+        host: postgres-rw
         # -- host of the database
         port: 5432
         # -- name of the schema inside the db
@@ -101,10 +92,10 @@ decentralizedIam:
         # -- configuration for the existing secret to get the passwords from
         existingSecret:
           enabled: true
-          name: postgres.postgres.credentials.postgresql.acid.zalan.do
+          name: postgres-superuser
           key: password
         # -- host of the database
-        host: postgres
+        host: postgres-rw
         # -- host of the database
         port: 5432
         # -- name of the schema inside the db
@@ -139,13 +130,13 @@ decentralizedIam:
       # -- connection to the database
       database:
         # -- url to connect the db at
-        url: jdbc:postgresql://postgres:5432/papdb
+        url: jdbc:postgresql://postgres-rw:5432/papdb
         # -- username to access the db
         username: postgres
         # -- secret to take the password from
         existingSecret:
           enabled: true
-          name: postgres.postgres.credentials.postgresql.acid.zalan.do
+          name: postgres-superuser
           key: password
 
     # -- configuration for the open-policy-agent to be deployed as part of the connector fulfilling the role of the PDP, as a sidecar to apisix
@@ -193,12 +184,12 @@ scorpio:
   ## configuration of the database to be used by broker
   db:
     # -- host of the db
-    dbhost: postgres
+    dbhost: postgres-rw
     # -- username to be used
     user: postgres
     existingSecret:
       enabled: true
-      name: postgres.postgres.credentials.postgresql.acid.zalan.do
+      name: postgres-superuser
       key: password
   ## configuration of the readiness probe
   readinessProbe:
@@ -312,10 +303,10 @@ keycloak:
     enabled: false
   # -- host of the external db to be used
   externalDatabase:
-    host: postgres
+    host: postgres-rw
     database: keycloakdb
     user: postgres
-    existingSecret: postgres.postgres.credentials.postgresql.acid.zalan.do
+    existingSecret: postgres-superuser
     existingSecretPasswordKey: password
 
   # -- extra volumes to be mounted
@@ -2157,13 +2148,13 @@ identityhub:
     public: ""
     readiness: ""
   postgresql:
-    host: postgres
+    host: postgres-rw
     port: "5432"
     database: "ih"
     auth:
-      username: ih
+      username: postgres
       password:
-      existingSecret: ih.postgres.credentials.postgresql.acid.zalan.do
+      existingSecret: postgres-superuser
       existingSecretPasswordKey: password
 
 vault:

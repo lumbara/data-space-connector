@@ -7,7 +7,8 @@ dependencies:
     condition: trusted-issuers-list.enabled
     version: 0.16.0
     repository: https://fiware.github.io/helm-charts
-  - name: postgres-operator
-    condition: postgres-operator.enabled
-    version: 1.15.1
-    repository: https://opensource.zalando.com/postgres-operator/charts/postgres-operator
+  - name: cloudnative-pg
+    alias: cnpg
+    condition: cnpg.enabled
+    version: 0.23.2
+    repository: https://cloudnative-pg.github.io/charts
