@@ -3,8 +3,7 @@ on: [push, pull_request]
 
 jobs:
   test:
-    runs-on: ubuntu-latest
-    strategy:
+    runs-on: blacksmith-4vcpu-ubuntu-2204    strategy:
       fail-fast: false
       matrix:
         include:
