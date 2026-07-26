@@ -9,8 +9,7 @@ jobs:
 
     generate-version:
       name: "Generate version"
-      runs-on: ubuntu-latest
-
+      runs-on: blacksmith-4vcpu-ubuntu-2204
       outputs:
         version: ${{ steps.out.outputs.version }}
 
@@ -59,8 +58,7 @@ jobs:
       name: "Release charts"
       needs:
         - "generate-version"
-      runs-on: ubuntu-latest
-
+      runs-on: blacksmith-4vcpu-ubuntu-2204
       steps:
         - uses: actions/checkout@v5
 
@@ -87,8 +85,7 @@ jobs:
     git-release:
       name: "Create Git Release"
       needs: ["generate-version", "deploy"]
-      runs-on: ubuntu-latest
-
+      runs-on: blacksmith-4vcpu-ubuntu-2204
       steps:
 
         - uses: actions/checkout@v5
@@ -107,4 +104,3 @@ jobs:
             title: ${{ needs.generate-version.outputs.version }}
             files: |
               LICENSE
-
