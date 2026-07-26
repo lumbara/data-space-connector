@@ -14,8 +14,7 @@ on:
 jobs:
 
   lint:
-    runs-on: ubuntu-latest
-
+    runs-on: blacksmith-4vcpu-ubuntu-2204
     steps:
       - uses: actions/checkout@v5
 
@@ -23,8 +22,7 @@ jobs:
         run: ./.github/scripts/lint.sh
 
   eval:
-    runs-on: ubuntu-latest
-    needs:
+    runs-on: blacksmith-4vcpu-ubuntu-2204    needs:
       - lint
 
     steps:
@@ -39,8 +37,7 @@ jobs:
           .github/scripts/eval.sh
 
   check-labels:
-    runs-on: ubuntu-latest
-    needs:
+    runs-on: blacksmith-4vcpu-ubuntu-2204    needs:
       - lint
       - eval
 
@@ -66,8 +63,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
   comment:
-    runs-on: ubuntu-latest
-    needs: 
+    runs-on: blacksmith-4vcpu-ubuntu-2204    needs: 
       - check-labels
     if: always() && needs.check-labels.result == 'failure'
     steps:
@@ -82,8 +78,7 @@ jobs:
   prepare-release:
     needs: ["check-labels", "comment"]
 
-    runs-on: ubuntu-latest
-
+    runs-on: blacksmith-4vcpu-ubuntu-2204
     steps:
       - uses: actions/checkout@v5
         with:
