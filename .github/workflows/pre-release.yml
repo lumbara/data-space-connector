@@ -13,8 +13,7 @@ jobs:
 
   generate-version:
     name: Generate version
-    runs-on: ubuntu-latest
-    
+    runs-on: blacksmith-4vcpu-ubuntu-2204    
     outputs:
       version: ${{ steps.out.outputs.version }}
       plain-version: ${{ steps.out.outputs.plain-version }}
@@ -48,8 +47,7 @@ jobs:
           
   git-release:
     needs: ["generate-version"]
-    runs-on: ubuntu-latest
-
+    runs-on: blacksmith-4vcpu-ubuntu-2204
     steps:
 
       - uses: actions/checkout@v5
